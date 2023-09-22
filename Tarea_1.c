@@ -6,13 +6,13 @@
 
 
 int main() {
-    uint64_t factorial = 1;
-    uint64_t aux;
-    uint64_t *cifrado;
-    int i, j;
+    unsigned long long int factorial = 1;
+    unsigned long long int aux;
+    unsigned long long int *cifrado;
+    int i, j=0;
     FILE *file;
 
-    cifrado = (uint64_t*) malloc(sizeof(uint64_t));
+    cifrado = (unsigned long long int*) malloc(sizeof(unsigned long long int));
     if (cifrado == NULL) {
         printf("No se pudo asignar memoria.\n");
         return 1;
@@ -26,16 +26,17 @@ int main() {
 
     for (i = 1; ; i++) {
         if ((factorial * i) > 4294967295) { // Si el factorial va a superar 2^32
-            if(0)
-            cifrado = (uint64_t*) realloc(cifrado, i * sizeof(uint64_t));
-            if (cifrado == NULL) {
-                printf("No se pudo asignar memoria.\n");
-                return 1;
-            }
-            cifrado[i - 1] = 0; // Inicializa el nuevo elemento a cero
-            for (j = 0; j < i; j++) {
+
+            while(aux) {
+                j=0;
+                cifrado = (unsigned long long int*) realloc(cifrado, i * sizeof(unsigned long long int));
+                if (cifrado == NULL) {
+                    printf("No se pudo asignar memoria.\n");
+                    return 1;
+                }
                 cifrado[j] = aux % 4294967296; // Cifra el factorial en base 2^32
                 aux /= 4294967296;
+                j++;
             }
             for (j = 0; j < i; j++){
                 if(j == 0)
@@ -63,3 +64,15 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+

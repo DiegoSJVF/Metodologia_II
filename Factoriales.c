@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #define max_value 9223372036854775807
+#define max_int 4294967295
 
 struct fp
 {
@@ -44,8 +45,8 @@ int main() {
                 printf("No se pudo asignar memoria.\n");
                 return 1;
             }
-            cifrado[j] = aux % 4294967296; // Cifra el factorial en base 2^32
-            aux /= 4294967296;
+            cifrado[j] = aux % max_int; // Cifra el factorial en base 2^32
+            aux /= max_int;
             j++;
         }
         for (k = 0; k < j; k++){

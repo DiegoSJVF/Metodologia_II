@@ -1,4 +1,4 @@
- 
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -116,7 +116,6 @@ struct fp *fp_algoritmo(unsigned long long int numero)
     {
         factores_primos = factorizacion_primos(i);
     }
-    printf("\n");
     return factores_primos;
 }
 
@@ -124,10 +123,9 @@ void metodo_1(unsigned long long n)
 {
 
     struct fp *f_p, *aux;
-    unsigned long long int factorial;
-    unsigned long long int *cifrado, *multi;
-    unsigned int i, j=0, k, r;
-    FILE *file;
+    unsigned long long int factorial, resto;
+    unsigned long long int *cifrado, *multi_1, *multi_2;
+    unsigned int i, j=0, k=0, y, z;
 
     cifrado = (unsigned long long int*) malloc(sizeof(unsigned long long int));
     if (cifrado == NULL) {
@@ -135,17 +133,19 @@ void metodo_1(unsigned long long n)
         return;
     }
 
-	multi = (unsigned long long int*) malloc(sizeof(unsigned long long int));
-    if (multi == NULL) {
+    multi_1 = (unsigned long long int*) malloc(sizeof(unsigned long long int));
+    if (multi_1 == NULL) {
         printf("No se pudo asignar memoria.\n");
         return;
     }
 
-    file = fopen("combinatoria.txt", "w");
-    if (file == NULL) {
-        printf("No se pudo abrir el archivo.\n");
+    multi_2 = (unsigned long long int*) malloc(sizeof(unsigned long long int));
+    if (multi_2 == NULL) {
+        printf("No se pudo asignar memoria.\n");
         return;
     }
+
+
 
 
     f_p = fp_algoritmo(n);
@@ -153,101 +153,87 @@ void metodo_1(unsigned long long n)
     factorial *= n; // Actualiza el valor del factorial
 
     cifrado[0] = 0;
+    multi_1[0] = 0;
+    multi_2[0] = 0;
 
-	while(f_p)
-	{
-		factorial = 1;
+    while(f_p)
+    {
+        factorial = 1;
 
-		while(f_p && factorial <= max_int){
-			factorial *= pow2(f_p->primo, f_p->apariciones);
-			aux = f_p;
-			f_p = f_p->sig;
-			free(aux);
-		}
-
-		if(cifrado[0] == 0)
+        while(f_p && factorial <= max_int){
+            factorial *= pow2(f_p->primo, f_p->apariciones);
+            aux = f_p;
+            f_p = f_p->sig;
+            free(aux);
+        }
+        if(multi_1[0] == 0)
+        {
+            j=0;
+            while(factorial)
+            {
+                multi_1 = (unsigned long long int*) realloc(multi_1, j+1 * sizeof(unsigned long long int));
+                if (multi_1 == NULL)
+                {
+                    printf("No se pudo asignar memoria.\n");
+                    return;
+                }
+                multi_1[j] = factorial % max_int; // Cifra el factorial en base 2^32
+                factorial /= max_int;
+                j++;
+            }
+        }
+        else
 		{
-
-			j=0;
-			while(factorial)
-			{
-				cifrado = (unsigned long long int*) realloc(cifrado, j+1 * sizeof(unsigned long long int));
-				if (cifrado == NULL)
-				{
-					printf("No se pudo asignar memoria.\n");
-					return;
-				}
-				cifrado[j] = factorial % max_int; // Cifra el factorial en base 2^32
-				printf("cifrado: %llu", cifrado[1]);
-				factorial /= max_int;
-				j++;
-			}
-		}
-		else {
 			k=0;
 			while(factorial)
 			{
-				multi = (unsigned long long int*) realloc(multi, k+1 * sizeof(unsigned long long int));
-				if (multi == NULL)
+				multi_2 = (unsigned long long int*) realloc(multi_2, k+1 * sizeof(unsigned long long int));
+				if (multi_2 == NULL)
 				{
 					printf("No se pudo asignar memoria.\n");
 					return;
 				}
-				multi[j] = factorial % max_int; // Cifra el factorial en base 2^32
+				multi_2[k] = factorial % max_int; // Cifra el factorial en base 2^32
 				factorial /= max_int;
 				k++;
 			}
-
-
-			for(r = 0; r < k; r++)
+			resto = 0;
+			for(y = 0; y < j; y++)
 			{
-
-				if(((cifrado[r] + multi[r]) % max_int) > 0 )
+				for (z = 0; z < k ; z++)
 				{
-					if(r+1 < j-1)
-						cifrado[r+1] = cifrado[r+1] + ((cifrado[r] + multi[r]) % max_int);
-					else if(r+1 == j-1)
-					{
-						cifrado = (unsigned long long int*) realloc(cifrado, j * sizeof(unsigned long long int));
-						if (cifrado == NULL)
-						{
-							printf("No se pudo asignar memoria.\n");
-							return;
-						}
-						cifrado[r+1] = cifrado[r+1]+ ((cifrado[r] + multi[r]) % max_int);
-						j++;
-						printf("\ncifrado[0]: %llu", cifrado[0]);
-						printf("\ncifrado[1]: %llu", cifrado[1]);
-					}
-					cifrado[r] = (cifrado[r] + multi[r])/max_int;
+					cifrado = (unsigned long long int*) realloc(cifrado, j+k * sizeof(unsigned long long int));
+					cifrado[z+y] += (((multi_1[y] * multi_2[z]) + resto) % max_int);
+					resto = ((multi_1[y] * multi_2[z]) / max_int);
 				}
-				else
-					cifrado[r] = cifrado[r] + multi[r];
 			}
-		}
-	}
+        }
+    }
 
-	for (i = 0; i < j; i++){
-		if(i == 0)
-			fprintf(file, "%llu! = %llu", n, cifrado[i]);
-		else if(cifrado[i])
-			fprintf(file, " + %llu * (2^32)^%u", cifrado[i], i);
-	}
-    fprintf(file, "\n");
+    if(multi_2[0] == 0)
+		cifrado = multi_1;
+
+    for (i = 0; i < j+k; i++){
+        if(i == 0)
+			{
+				printf("\n%llu! = %llu", n, cifrado[i]);
+			}
+        else if(cifrado[i])
+		{
+			printf(" + %llu * (2^32)^%u", cifrado[i], i);
+		}
+    }
 
     free(cifrado);
-    fclose(file);
 
     return;
 }
 
 int main(int argc,char *argv[]) {
 
-	unsigned long long int n;
-	n = strtoull(argv[1], NULL, 10);
-
-	printf("n: %llu", n);
-	metodo_1(n);
+    unsigned long long int n;
+    n = strtoull(argv[1], NULL, 10);
+    metodo_1(n);
 }
 
 

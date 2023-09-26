@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #define max_value 9223372036854775807
 #define max_int 4294967296
@@ -119,121 +121,188 @@ struct fp *fp_algoritmo(unsigned long long int numero)
     return factores_primos;
 }
 
-void metodo_1(unsigned long long n)
+void factorizacion(struct fp **primera, struct fp **segunda)
 {
+    struct fp *temp1 = *primera;
+    struct fp *temp2 = *segunda;
+    struct fp *prev1 = NULL, *prev2 = NULL;
 
-    struct fp *f_p, *aux;
-    unsigned long long int factorial, resto;
-    unsigned long long int *cifrado, *multi_1, *multi_2;
-    unsigned int i, j=0, k=0, y, z;
-
-    cifrado = (unsigned long long int*) malloc(sizeof(unsigned long long int));
-    if (cifrado == NULL) {
-        printf("No se pudo asignar memoria.\n");
-        return;
-    }
-
-    multi_1 = (unsigned long long int*) malloc(sizeof(unsigned long long int));
-    if (multi_1 == NULL) {
-        printf("No se pudo asignar memoria.\n");
-        return;
-    }
-
-    multi_2 = (unsigned long long int*) malloc(sizeof(unsigned long long int));
-    if (multi_2 == NULL) {
-        printf("No se pudo asignar memoria.\n");
-        return;
-    }
-
-
-
-
-    f_p = fp_algoritmo(n);
-
-    factorial *= n; // Actualiza el valor del factorial
-
-    cifrado[0] = 0;
-    multi_1[0] = 0;
-    multi_2[0] = 0;
-
-    while(f_p)
+    while (temp1 != NULL && temp2 != NULL)
     {
-        factorial = 1;
-
-        while(f_p && factorial <= max_int){
-            factorial *= pow2(f_p->primo, f_p->apariciones);
-            aux = f_p;
-            f_p = f_p->sig;
-            free(aux);
-        }
-        if(multi_1[0] == 0)
+        if (temp1->primo < temp2->primo)
         {
-            j=0;
-            while(factorial)
-            {
-                multi_1 = (unsigned long long int*) realloc(multi_1, j+1 * sizeof(unsigned long long int));
-                if (multi_1 == NULL)
-                {
-                    printf("No se pudo asignar memoria.\n");
-                    return;
-                }
-                multi_1[j] = factorial % max_int; // Cifra el factorial en base 2^32
-                factorial /= max_int;
-                j++;
-            }
+            prev1 = temp1;
+            temp1 = temp1->sig;
+        }
+        else if (temp1->primo > temp2->primo)
+        {
+            temp2 = temp2->sig;
         }
         else
-		{
-			k=0;
-			while(factorial)
-			{
-				multi_2 = (unsigned long long int*) realloc(multi_2, k+1 * sizeof(unsigned long long int));
-				if (multi_2 == NULL)
-				{
-					printf("No se pudo asignar memoria.\n");
-					return;
-				}
-				multi_2[k] = factorial % max_int; // Cifra el factorial en base 2^32
-				factorial /= max_int;
-				k++;
-			}
-			resto = 0;
-			for(y = 0; y < j; y++)
-			{
-				for (z = 0; z < k ; z++)
-				{
-					cifrado = (unsigned long long int*) realloc(cifrado, j+k * sizeof(unsigned long long int));
-					cifrado[z+y] += (((multi_1[y] * multi_2[z]) + resto) % max_int);
-					resto = ((multi_1[y] * multi_2[z]) / max_int);
-				}
-			}
+        {
+            if (temp1->apariciones > temp2->apariciones)
+            {
+                temp1->apariciones -= temp2->apariciones;
+                temp2 = temp2->sig;
+            }
+            else if (temp1->apariciones < temp2->apariciones)
+            {
+                if (prev1 == NULL)
+                {
+                    *primera = temp1->sig;
+                    free(temp1);
+                    temp1 = *primera;
+                }
+                else
+                {
+                    prev1->sig = temp1->sig;
+                    free(temp1);
+                    temp1 = prev1->sig;
+                }
+                temp2->apariciones -= temp1->apariciones;
+            }
+            else
+            {
+                if (prev1 == NULL)
+                {
+                    *primera = temp1->sig;
+                    free(temp1);
+                    temp1 = *primera;
+                }
+                else
+                {
+                    prev1->sig = temp1->sig;
+                    free(temp1);
+                    temp1 = prev1->sig;
+                }
+                struct fp *temp3 = temp2;
+                if (temp3 == *segunda)
+                {
+                    *segunda = (*segunda)->sig;
+                    free(temp3);
+                    temp2 = *segunda;
+                }
+                else
+                {
+                    prev2->sig = temp3->sig;
+                    free(temp3);
+                    temp2 = prev2->sig;
+                }
+            }
         }
     }
+}
 
-    if(multi_2[0] == 0)
-		cifrado = multi_1;
 
-    for (i = 0; i < j+k; i++){
-        if(i == 0)
-			{
-				printf("\n%llu! = %llu", n, cifrado[i]);
-			}
-        else if(cifrado[i])
-		{
-			printf(" + %llu * (2^32)^%u", cifrado[i], i);
-		}
+void metodo_1(unsigned int n, unsigned int k)
+{
+
+    struct fp *n_p, *k_p, *n_k_p, *aux;
+    unsigned long long int rn = 1, rk = 1, rnk = 1, result;
+
+    n_p = fp_algoritmo(n);
+    k_p = fp_algoritmo(k);
+    n_k_p = fp_algoritmo(n-k);
+
+    //factorizacion(&n_p, &k_p);
+    //factorizacion(&n_p, &n_k_p);
+
+    while(n_p)
+    {
+        rn *= pow2(n_p->primo, n_p->apariciones);
+        aux = n_p;
+        n_p = n_p->sig;
+        free(aux);
+    }
+    while(k_p)
+    {
+        rk *= pow2(k_p->primo, k_p->apariciones);
+        aux = k_p;
+        k_p = k_p->sig;
+        free(aux);
+    }
+    while(n_k_p)
+    {
+        rnk *= pow2(n_k_p->primo, n_k_p->apariciones);
+        aux = n_k_p;
+        n_k_p = n_k_p->sig;
+        free(aux);
     }
 
-    free(cifrado);
+    result = rn /(rk*rnk);
+
+    printf("resultado (%u %u): %llu\n", n, k, result);
 
     return;
 }
 
+void metodo_2(unsigned int n, unsigned int k)
+{
+
+}
+
+
+
+void metodo_3(unsigned int n, unsigned int k)
+{
+    unsigned long long int resultado = 1;
+    unsigned int i;
+
+    if (k > n - k) {
+        k = n - k;
+    }
+
+    for (i = 0; i < k; i++) {
+        resultado *= (n - i);
+        resultado /= (i + 1);
+    }
+}
+
 int main(int argc,char *argv[]) {
 
-    unsigned long long int n;
-    n = strtoull(argv[1], NULL, 10);
-    metodo_1(n);
+    unsigned int n, k;
+    double tiempo;
+    if(argc == 4)
+    {
+        if(strcmp(argv[1], "-1") == 0)
+        {
+            n = strtoull(argv[2], NULL, 10);
+            k = strtoull(argv[3], NULL, 10);
+
+            clock_t inicio = clock(); // start time
+            metodo_1(n, k);
+            clock_t fin = clock(); // end time
+            tiempo = ((double)(fin - inicio)) / CLOCKS_PER_SEC; // calculate execution time
+
+            printf("Tiempo tomado en metodo 1: %f\n", tiempo);
+        }
+        else if (strcmp(argv[1], "-2") == 0)
+        {
+            n = strtoull(argv[2], NULL, 10);
+            k = strtoull(argv[3], NULL, 10);
+
+            clock_t inicio = clock(); // start time
+            metodo_2(n, k);
+            clock_t fin = clock(); // end time
+            tiempo = ((double)(fin - inicio)) / CLOCKS_PER_SEC; // calculate execution time
+            printf("Tiempo tomado en metodo 2: %f\n", tiempo);
+
+        }
+        else if (strcmp(argv[1], "-3") == 0)
+        {
+            n = strtoull(argv[2], NULL, 10);
+            k = strtoull(argv[3], NULL, 10);
+            clock_t inicio = clock(); // start time
+            metodo_3(n, k);
+            clock_t fin = clock(); // end time
+            tiempo = ((double)(fin - inicio)) / CLOCKS_PER_SEC; // calculate execution time
+            printf("Tiempo tomado en metodo 3: %f\n", tiempo);
+
+
+
+        }
+    }
+
 }
 
 

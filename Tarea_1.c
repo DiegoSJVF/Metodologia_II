@@ -241,8 +241,6 @@ void metodo_2(unsigned int n, unsigned int k)
 
 }
 
-
-
 void metodo_3(unsigned int n, unsigned int k)
 {
     unsigned long long int resultado = 1;

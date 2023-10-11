@@ -1,0 +1,14 @@
+Comandos:
+
+
+git init    //inicia github en la carpeta, se deberia usar solo una vez
+git remote add origin https://github.com/DiegoSJVF/Metodologia_II.git
+
+
+git add Tarea_1.c (para añadir el archivo seleccionado a los que se enviaran)
+git commit -m "agregue (lo agregado)" (para añadir un Comentario a lo que se añade)
+git push -u origin main (para subirlo a github)
+    Username: TU_NOMBRE
+    Password: TOKEN
+
+git status (para ver si existen archivos sin estar guardados en github)

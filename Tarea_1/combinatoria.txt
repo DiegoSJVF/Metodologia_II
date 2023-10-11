@@ -1,0 +1,17 @@
+resultado (60 30): 118264581564861424
+Tiempo tomado en metodo 1: 0.000072
+resultado (60 30): 118264581564861424
+Tiempo tomado en metodo 2: 0.000032
+resultado (60 30): 118264581564861424
+Tiempo tomado en metodo 3: 0.000055
+resultado (60 30): 118264581564861424
+Tiempo tomado en metodo 2: 0.000041
+resultado (60 30): 118264581564861424
+Tiempo tomado en metodo 3: 0.000039
+resultado (70 35): 107288750782634775
+Tiempo tomado en metodo 3: 0.000016
+resultado (60 30): 118264581564861424
+Tiempo tomado en metodo 3: 0.000034
+resultado (60 30): 118264581564861424
+Tiempo tomado en metodo 3: 0.000012
+4191844505805495
